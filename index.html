@@ -64,7 +64,7 @@ gifts.forEach(gift => {
   ${gift.reserved ? "🎁 Réservé !" : "Je réserve"}
 </button>
 
-${gift.reserved ? `<button class="cancel-btn" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>` : ""}
+${gift.reserved ? `<button class="cancel-btn" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>` : ""}
         `;
       } else {
         // Cadeau dispo : bouton réserver actif
