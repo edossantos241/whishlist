@@ -2,7 +2,7 @@ const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 exports.handler = async (event) => {
-  const url = "https://script.google.com/macros/s/TON_URL_APPS_SCRIPT/exec";
+  const url = "https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec";
 
   try {
     const response = await fetch(url, {
@@ -13,7 +13,7 @@ exports.handler = async (event) => {
       ...(event.httpMethod === 'POST' ? { body: event.body } : {})
     });
 
-    const data = await response.text(); // car le JSON peut venir mal formé
+    const data = await response.text(); // <-- important
 
     return {
       statusCode: 200,
