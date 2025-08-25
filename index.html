@@ -84,6 +84,13 @@ function loadGifts() {
   const button = document.querySelector(`button[data-id="${giftId}"]`);
   if (!button) return;
 
+  // Demander le prénom avant la réservation
+  const person = prompt("Quel est votre prénom ?", "");
+  if (!person || person.trim() === "") {
+    alert("Veuillez saisir un prénom pour réserver.");
+    return;
+  }
+
   button.disabled = true;
   button.textContent = "Réservation...";
 
@@ -93,13 +100,14 @@ function loadGifts() {
     body: JSON.stringify({
       action: 'reserve',
       giftId: giftId,
-      person: 'Anonyme'
+      person: person.trim()
     })
   })
     .then(res => res.json())
     .then(data => {
       if (data.success || data.result === "OK") {
-        button.textContent = "🎁 Réservé";
+        button.textContent = `🎁 Réservé !`;
+        button.disabled = true;
       } else {
         alert("Erreur : " + (data.error || "Réponse inattendue"));
         button.disabled = false;
