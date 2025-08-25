@@ -142,6 +142,7 @@ selectList.addEventListener('change', () => {
 
 function loadGifts() {
   giftListEl.innerHTML = "Chargement...";
+  console.log("Chargement de la liste :", currentSheet);
   fetch(`${sheetURL}?sheet=${encodeURIComponent(currentSheet)}`)
     .then(res => res.text())
     .then(text => {
