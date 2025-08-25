@@ -60,11 +60,11 @@ gifts.forEach(gift => {
         // Cadeau réservé : bouton grisé + bouton annuler
         div.innerHTML = `
           <strong>${gift.name}</strong><br>
-          <<button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
+          <button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
   ${gift.reserved ? "🎁 Réservé !" : "Je réserve"}
 </button>
 
-${gift.reserved ? `<button class="cancel-btn" onclick="cancelGift(${gift.id})">Annuler</button>` : ""}
+${gift.reserved ? `<button class="cancel-btn" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>` : ""}
         `;
       } else {
         // Cadeau dispo : bouton réserver actif
@@ -151,7 +151,7 @@ ${gift.reserved ? `<button class="cancel-btn" onclick="cancelGift(${gift.id})">A
     return;
   }
 
-  const cancelButton = document.querySelector(`button.cancel-button[data-id="${giftId}"]`);
+  const cancelButton = document.querySelector(`button.cancel-btn[data-id="${giftId}"]`);
   if (cancelButton) {
     cancelButton.disabled = true;
     cancelButton.textContent = "Annulation...";
