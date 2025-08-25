@@ -1,36 +1,32 @@
-const fetch = require("node-fetch");
+const fetch = (...args) =>
+  import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
-exports.handler = async function(event, context) {
-  if (event.httpMethod !== 'POST') {
-    return {
-      statusCode: 405,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Méthode non autorisée' })
-    };
-  }
+exports.handler = async (event) => {
+  const url = "https://script.google.com/macros/s/TON_URL_APPS_SCRIPT/exec";
 
   try {
-    // On relaie vers ton script Google Apps Script
-    const response = await fetch("https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec", {
-      method: "POST",
+    const response = await fetch(url, {
+      method: event.httpMethod,
       headers: {
-        "Content-Type": "application/json"  // Important : le garder JSON
+        'Content-Type': 'application/json',
       },
-      body: event.body  // On transmet le JSON brut du client
+      ...(event.httpMethod === 'POST' ? { body: event.body } : {})
     });
 
-    const result = await response.text();
+    const data = await response.text(); // car le JSON peut venir mal formé
 
     return {
-      statusCode: response.status,
-      headers: { 'Content-Type': 'application/json' },
-      body: result
+      statusCode: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+      },
+      body: data,
     };
-
   } catch (error) {
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: error.message })
+      body: JSON.stringify({ error: error.message }),
     };
   }
 };
