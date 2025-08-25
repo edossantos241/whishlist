@@ -73,6 +73,7 @@
     // Essaye de parser seulement si c'est du JSON (par exemple commence par '{')
     if (text.trim().startsWith('{')) {
       const data = JSON.parse(text);
+      console.log("Réponse JSON :", data);
       if (data.success) {
         alert('Réservation réussie !');
         // mise à jour UI
