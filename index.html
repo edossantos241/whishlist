@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Liste de Noël - Emma</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 2em auto;
+    }
+    .gift {
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 6px 10px;
+      border: none;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+    button:disabled {
+      background-color: #aaa;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎄 Liste de cadeaux de Emma</h1>
+  <div id="gift-list">Chargement...</div>
+
+  <script>
+    const sheetURL = 'https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec';
+
+    // Simuler des données (à remplacer par un appel API vers une Google Sheet si besoin)
+    const gifts = [
+      { id: 1, name: "Montre connectée", reserved: false },
+      { id: 2, name: "Livre Harry Potter édition illustrée", reserved: false },
+      { id: 3, name: "Coffret de thé", reserved: false }
+    ];
+
+    const giftListEl = document.getElementById("gift-list");
+
+    function renderGifts() {
+      giftListEl.innerHTML = "";
+      gifts.forEach(gift => {
+        const div = document.createElement("div");
+        div.className = "gift";
+        div.innerHTML = `
+          <strong>${gift.name}</strong><br>
+          <button ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
+            ${gift.reserved ? "Déjà réservé" : "Je réserve"}
+          </button>
+        `;
+        giftListEl.appendChild(div);
+      });
+    }
+
+    function reserveGift(giftId) {
+  const params = new URLSearchParams();
+  params.append("action", "reserve");
+  params.append("giftId", giftId);
+  params.append("person", "Anonyme");
+
+  fetch("/.netlify/functions/reserve-proxy", {
+    method: "POST",
+    body: params,
+  })
+    .then(res => res.text())
+    .then(text => {
+      const data = JSON.parse(text);
+      if (data.result === "OK") {
+        alert("Cadeau réservé !");
+      } else {
+        throw new Error("Erreur dans la réponse");
+      }
+    })
+    .catch(err => {
+      console.error("Erreur :", err);
+      alert("Réservation échouée");
+    });
+}
+
+
+    renderGifts();
+  </script>
+</body>
+</html>
