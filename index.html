@@ -150,6 +150,7 @@
     })
       .then(res => res.json())
       .then(data => {
+        console.log('data cancel : ', data)
         if (data.success) {
           loadGifts();
         } else {
@@ -159,6 +160,7 @@
         }
       })
       .catch(err => {
+        console.log('error cancel : ', err)
         alert("Erreur : " + err.message);
         button.disabled = false;
         button.textContent = "Annuler la réservation";
