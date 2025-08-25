@@ -42,7 +42,12 @@
     function renderGifts(gifts) {
     giftListEl.innerHTML = "";
 
-    gifts.forEach(gift => {
+    // On trie : les non réservés d'abord (reserved = false)
+gifts.sort((a, b) => {
+  return (a.reserved === b.reserved) ? 0 : a.reserved ? 1 : -1;
+});
+
+gifts.forEach(gift => {
       const div = document.createElement("div");
       div.className = "gift";
 
