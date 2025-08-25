@@ -133,39 +133,36 @@
   }
 
   function cancelReservation(giftId) {
-    if (!confirm("Voulez-vous vraiment annuler cette réservation ? Ne vous trompez pas de cadeau 😉")) return;
+  const confirmCancel = confirm("Souhaitez-vous vraiment annuler cette réservation ? Attention à ne pas vous tromper de cadeau 😉");
+  if (!confirmCancel) return;
 
-    // Bouton annuler cliqué, désactivons-le pour éviter les multiples clics
-    const button = event.target;
-    button.disabled = true;
-    button.textContent = "Annulation...";
-
-    fetch(sheetURL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'cancel',
-        giftId: giftId
-      })
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log('data cancel : ', data)
-        if (data.success) {
-          loadGifts();
-        } else {
-          alert("Erreur : " + (data.error || "Réponse inattendue"));
-          button.disabled = false;
-          button.textContent = "Annuler la réservation";
-        }
-      })
-      .catch(err => {
-        console.log('error cancel : ', err)
-        alert("Erreur : " + err.message);
-        button.disabled = false;
-        button.textContent = "Annuler la réservation";
-      });
+  const person = prompt("Quel est votre prénom pour annuler ?", "");
+  if (!person || person.trim() === "") {
+    alert("Veuillez saisir un prénom pour annuler.");
+    return;
   }
+
+  fetch(sheetURL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'cancel',
+      giftId: giftId,
+      person: person.trim()
+    })
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        loadGifts(); // recharge la liste
+      } else {
+        alert("Erreur : " + (data.error || "Réponse inattendue"));
+      }
+    })
+    .catch(err => {
+      alert("Erreur : " + err.message);
+    });
+}
 
   loadGifts();
   </script>
