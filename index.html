@@ -40,88 +40,128 @@
     const giftListEl = document.getElementById("gift-list");
 
     function renderGifts(gifts) {
-  giftListEl.innerHTML = "";
+    giftListEl.innerHTML = "";
 
-  gifts.forEach(gift => {
-    const div = document.createElement("div");
-    div.className = "gift";
-    div.innerHTML = `
-      <strong>${gift.name}</strong><br>
-      <button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
-        ${gift.reserved ? "🎁 Réservé" : "Je réserve"}
-      </button>
-    `;
-    giftListEl.appendChild(div);
-  });
-}
+    gifts.forEach(gift => {
+      let buttonText = "Je réserve";
+      let disabled = "";
+      let onClick = `reserveGift(${gift.id})`;
 
-function loadGifts() {
-  fetch(sheetURL)
-  .then(res => res.text())   // d'abord on lit la réponse en texte brut
-  .then(text => {
-    console.log("Réponse brute :", text);  // voir ce que tu as reçu réellement
+      if (gift.reserved) {
+        buttonText = "🎁 Réservé !";
+        onClick = `cancelReservation(${gift.id})`;
+        disabled = ""; // Le bouton est actif pour permettre annulation
+      }
 
-    // essayer de parser le JSON
-    let data;
-    try {
-      data = JSON.parse(text);
-    } catch (e) {
-      console.error("Erreur JSON.parse :", e);
-      throw e;  // on remonte l'erreur pour passer dans le catch
-    }
-
-    renderGifts(data);
-  })
-  .catch(err => {
-    console.error("Erreur lors du chargement :", err);
-    giftListEl.innerHTML = "Erreur de chargement.";
-  });
-    
-}
-
-
-  function reserveGift(giftId) {
-  const button = document.querySelector(`button[data-id="${giftId}"]`);
-  if (!button) return;
-
-  // Demander le prénom avant la réservation
-  const person = prompt("Quel est votre prénom ?", "");
-  if (!person || person.trim() === "") {
-    alert("Veuillez saisir un prénom pour réserver.");
-    return;
+      const div = document.createElement("div");
+      div.className = "gift";
+      div.innerHTML = `
+        <strong>${gift.name}</strong><br>
+        <button data-id="${gift.id}" ${disabled} onclick="${onClick}">
+          ${buttonText}
+        </button>
+      `;
+      giftListEl.appendChild(div);
+    });
   }
 
-  button.disabled = true;
-  button.textContent = "Réservation...";
+function loadGifts() {
+    fetch(sheetURL)
+      .then(res => res.text())
+      .then(text => {
+        console.log("Réponse brute :", text);
 
-  fetch(sheetURL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      action: 'reserve',
-      giftId: giftId,
-      person: person.trim()
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch (e) {
+          console.error("Erreur JSON.parse :", e);
+          throw e;
+        }
+
+        renderGifts(data);
+      })
+      .catch(err => {
+        console.error("Erreur lors du chargement :", err);
+        giftListEl.innerHTML = "Erreur de chargement.";
+      });
+  }
+
+
+function reserveGift(giftId) {
+    const person = prompt("Quel est votre prénom ?", "");
+    if (!person || person.trim() === "") {
+      alert("Veuillez saisir un prénom pour réserver.");
+      return;
+    }
+
+    const button = document.querySelector(`button[data-id="${giftId}"]`);
+    if (!button) return;
+
+    button.disabled = true;
+    button.textContent = "Réservation...";
+
+    fetch(sheetURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'reserve',
+        giftId: giftId,
+        person: person.trim()
+      })
     })
-  })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success || data.result === "OK") {
-        button.textContent = `🎁 Réservé !`;
-        button.disabled = true;
-      } else {
-        alert("Erreur : " + (data.error || "Réponse inattendue"));
+      .then(res => res.json())
+      .then(data => {
+        if (data.success || data.result === "OK") {
+          loadGifts();
+        } else {
+          alert("Erreur : " + (data.error || "Réponse inattendue"));
+          button.disabled = false;
+          button.textContent = "Je réserve";
+        }
+      })
+      .catch(err => {
+        alert("Erreur : " + err.message);
         button.disabled = false;
         button.textContent = "Je réserve";
-      }
-    })
-    .catch(err => {
-      alert("Erreur : " + err.message);
-      button.disabled = false;
-      button.textContent = "Je réserve";
-    });
-}
+      });
+  }
 
-loadGifts();
+function cancelReservation(giftId) {
+    if (!confirm("Voulez-vous vraiment annuler cette réservation ? Ne vous trompez pas de cadeaux 😉")) return;
+
+    const button = document.querySelector(`button[data-id="${giftId}"]`);
+    if (!button) return;
+
+    button.disabled = true;
+    button.textContent = "Annulation...";
+
+    fetch(sheetURL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'cancel',
+        giftId: giftId
+      })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          loadGifts();
+        } else {
+          alert("Erreur : " + (data.error || "Réponse inattendue"));
+          button.disabled = false;
+          button.textContent = "🎁 Réservé !";
+        }
+      })
+      .catch(err => {
+        alert("Erreur : " + err.message);
+        button.disabled = false;
+        button.textContent = "🎁 Réservé !";
+      });
+  }
+
+  loadGifts();
   </script>
 </body>
 </html>
