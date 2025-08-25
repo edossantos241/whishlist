@@ -28,6 +28,11 @@
       background-color: #aaa;
       cursor: not-allowed;
     }
+    .cancel-btn {
+  background-color: #e53935; /* rouge */
+  color: white;
+  margin-left: 10px;
+}
   </style>
 </head>
 <body>
@@ -55,8 +60,11 @@ gifts.forEach(gift => {
         // Cadeau réservé : bouton grisé + bouton annuler
         div.innerHTML = `
           <strong>${gift.name}</strong><br>
-          <button data-id="${gift.id}" disabled>🎁 Réservé !</button>
-  <button class="cancel-button" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>
+          <<button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
+  ${gift.reserved ? "🎁 Réservé !" : "Je réserve"}
+</button>
+
+${gift.reserved ? `<button class="cancel-btn" onclick="cancelGift(${gift.id})">Annuler</button>` : ""}
         `;
       } else {
         // Cadeau dispo : bouton réserver actif
