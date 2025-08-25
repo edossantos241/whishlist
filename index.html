@@ -43,29 +43,35 @@
     giftListEl.innerHTML = "";
 
     gifts.forEach(gift => {
-      let buttonText = "Je réserve";
-      let disabled = "";
-      let onClick = `reserveGift(${gift.id})`;
-
-      if (gift.reserved) {
-        buttonText = "🎁 Réservé !";
-        onClick = `cancelReservation(${gift.id})`;
-        disabled = ""; // Le bouton est actif pour permettre annulation
-      }
-
       const div = document.createElement("div");
       div.className = "gift";
-      div.innerHTML = `
-        <strong>${gift.name}</strong><br>
-        <button data-id="${gift.id}" ${disabled} onclick="${onClick}">
-          ${buttonText}
-        </button>
-      `;
+
+      if (gift.reserved) {
+        // Cadeau réservé : bouton grisé + bouton annuler
+        div.innerHTML = `
+          <strong>${gift.name}</strong><br>
+          <button data-id="${gift.id}" disabled>
+            🎁 Réservé !
+          </button>
+          <button onclick="cancelReservation(${gift.id})" style="margin-left: 10px; background-color: #f44336;">
+            Annuler la réservation
+          </button>
+        `;
+      } else {
+        // Cadeau dispo : bouton réserver actif
+        div.innerHTML = `
+          <strong>${gift.name}</strong><br>
+          <button data-id="${gift.id}" onclick="reserveGift(${gift.id})">
+            Je réserve
+          </button>
+        `;
+      }
+
       giftListEl.appendChild(div);
     });
   }
 
-function loadGifts() {
+  function loadGifts() {
     fetch(sheetURL)
       .then(res => res.text())
       .then(text => {
@@ -87,8 +93,7 @@ function loadGifts() {
       });
   }
 
-
-function reserveGift(giftId) {
+  function reserveGift(giftId) {
     const person = prompt("Quel est votre prénom ?", "");
     if (!person || person.trim() === "") {
       alert("Veuillez saisir un prénom pour réserver.");
@@ -127,12 +132,11 @@ function reserveGift(giftId) {
       });
   }
 
-function cancelReservation(giftId) {
-    if (!confirm("Voulez-vous vraiment annuler cette réservation ? Ne vous trompez pas de cadeaux 😉")) return;
+  function cancelReservation(giftId) {
+    if (!confirm("Voulez-vous vraiment annuler cette réservation ? Ne vous trompez pas de cadeau 😉")) return;
 
-    const button = document.querySelector(`button[data-id="${giftId}"]`);
-    if (!button) return;
-
+    // Bouton annuler cliqué, désactivons-le pour éviter les multiples clics
+    const button = event.target;
     button.disabled = true;
     button.textContent = "Annulation...";
 
@@ -151,13 +155,13 @@ function cancelReservation(giftId) {
         } else {
           alert("Erreur : " + (data.error || "Réponse inattendue"));
           button.disabled = false;
-          button.textContent = "🎁 Réservé !";
+          button.textContent = "Annuler la réservation";
         }
       })
       .catch(err => {
         alert("Erreur : " + err.message);
         button.disabled = false;
-        button.textContent = "🎁 Réservé !";
+        button.textContent = "Annuler la réservation";
       });
   }
 
