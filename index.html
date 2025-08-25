@@ -6,33 +6,62 @@
   <title>Liste de Noël - Emma</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      max-width: 600px;
-      margin: 2em auto;
-    }
-    .gift {
-      border: 1px solid #ddd;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-    }
-    button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 6px 10px;
-      border: none;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-    button:disabled {
-      background-color: #aaa;
-      cursor: not-allowed;
-    }
-    .cancel-btn {
+  font-family: Arial, sans-serif;
+  max-width: 600px;
+  margin: 2em auto;
+}
+
+.gift {
+  border: 1px solid #ddd;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+
+button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 6px 10px;
+  border: none;
+  cursor: pointer;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+
+button:disabled {
+  background-color: #aaa;
+  cursor: not-allowed;
+}
+
+.cancel-btn {
   background-color: #e53935; /* rouge */
   color: white;
-  margin-left: 10px;
+  margin-left: 0;
 }
+
+.gift-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.gift-link {
+  font-size: 0.9em;
+  text-decoration: none;
+  color: #0077cc;
+}
+
+.gift-link:hover {
+  text-decoration: underline;
+}
+
+.gift-actions {
+  margin-top: 5px;
+}
+
+
+
   </style>
 </head>
 <body>
@@ -56,37 +85,44 @@
     const div = document.createElement("div");
     div.className = "gift";
 
-    // S'il y a une URL, on crée un lien HTML
+    // Lien (si présent)
     const linkHTML = gift.url
-      ? `<br><a href="${gift.url}" target="_blank" rel="noopener noreferrer">🔗 Voir ce cadeau</a>`
+      ? `<a href="${gift.url}" target="_blank" rel="noopener noreferrer" class="gift-link">🔗 Voir</a>`
       : "";
 
     if (gift.reserved) {
-      // Cadeau réservé : bouton grisé + bouton annuler
       div.innerHTML = `
-        <strong>${gift.name}</strong>
-        ${linkHTML}<br>
-        <button data-id="${gift.id}" disabled>
-          🎁 Réservé !
-        </button>
-        <button class="cancel-btn" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">
-          Annuler la réservation
-        </button>
+        <div class="gift-header">
+          <strong>${gift.name}</strong>
+          ${linkHTML}
+        </div>
+        <div class="gift-actions">
+          <button data-id="${gift.id}" disabled>
+            🎁 Réservé !
+          </button>
+          <button class="cancel-btn" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">
+            Annuler la réservation
+          </button>
+        </div>
       `;
     } else {
-      // Cadeau dispo : bouton réserver actif
       div.innerHTML = `
-        <strong>${gift.name}</strong>
-        ${linkHTML}<br>
-        <button data-id="${gift.id}" onclick="reserveGift(${gift.id})">
-          Je réserve
-        </button>
+        <div class="gift-header">
+          <strong>${gift.name}</strong>
+          ${linkHTML}
+        </div>
+        <div class="gift-actions">
+          <button data-id="${gift.id}" onclick="reserveGift(${gift.id})">
+            Je réserve
+          </button>
+        </div>
       `;
     }
 
     giftListEl.appendChild(div);
   });
 }
+
 
 
   function loadGifts() {
