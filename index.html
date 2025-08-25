@@ -60,41 +60,34 @@
     }
 
     async function reserveGift(giftId) {
-      try {
-        const response = await fetch('/.netlify/functions/reserve-proxy', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            action: 'reserve',
-            giftId: giftId,
-            person: 'Anonyme'
-          })
-        });
+  try {
+    const response = await fetch('/.netlify/functions/reserve-proxy', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reserve', giftId, person: 'Anonyme' })
+    });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    const text = await response.text(); // récupère la réponse brute
+    console.log('Réponse brute:', text);
 
-        const data = await response.json();
-
-        if (data.success) {
-          // Met à jour localement le cadeau comme réservé
-          const gift = gifts.find(g => g.id === giftId);
-          if (gift) {
-            gift.reserved = true;
-            renderGifts();
-          }
-          alert('Cadeau réservé avec succès ! 🎉');
-        } else {
-          alert('Erreur lors de la réservation : ' + (data.message || 'Erreur inconnue'));
-        }
-      } catch (error) {
-        console.error('Erreur dans fetch :', error);
-        alert('Erreur lors de la réservation. Vérifiez la console.');
+    // Essaye de parser seulement si c'est du JSON (par exemple commence par '{')
+    if (text.trim().startsWith('{')) {
+      const data = JSON.parse(text);
+      if (data.success) {
+        alert('Réservation réussie !');
+        // mise à jour UI
+      } else {
+        alert('Erreur : ' + (data.message || 'Erreur inconnue'));
       }
+    } else {
+      throw new Error('Réponse inattendue (pas du JSON)');
     }
+  } catch (error) {
+    console.error('Erreur dans fetch :', error);
+    alert('Erreur lors de la réservation. Vérifie la console.');
+  }
+}
+
 
     renderGifts();
   </script>
