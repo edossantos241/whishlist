@@ -67,23 +67,20 @@
   params.append("giftId", giftId);
   params.append("person", "Anonyme");
 
-  fetch("/.netlify/functions/reserve-proxy", {
-    method: "POST",
-    body: params,
+  fetch('/.netlify/functions/reserve-proxy', { method: 'POST', body: params })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
   })
-    .then(res => res.text())
-    .then(text => {
-      const data = JSON.parse(text);
-      if (data.result === "OK") {
-        alert("Cadeau réservé !");
-      } else {
-        throw new Error("Erreur dans la réponse");
-      }
-    })
-    .catch(err => {
-      console.error("Erreur :", err);
-      alert("Réservation échouée");
-    });
+  .then(data => {
+    console.log(data);
+    // suite du traitement
+  })
+  .catch(error => {
+    console.error('Erreur dans fetch :', error);
+  });
 }
 
 
