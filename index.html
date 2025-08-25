@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Liste de Noël - Emma</title>
   <style>
     body {
@@ -35,9 +35,7 @@
   <div id="gift-list">Chargement...</div>
 
   <script>
-    const sheetURL = 'https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec';
-
-    // Simuler des données (à remplacer par un appel API vers une Google Sheet si besoin)
+    // Liste initiale (à récupérer dynamiquement si possible)
     const gifts = [
       { id: 1, name: "Montre connectée", reserved: false },
       { id: 2, name: "Livre Harry Potter édition illustrée", reserved: false },
@@ -61,28 +59,42 @@
       });
     }
 
-    function reserveGift(giftId) {
-  const params = new URLSearchParams();
-  params.append("action", "reserve");
-  params.append("giftId", giftId);
-  params.append("person", "Anonyme");
+    async function reserveGift(giftId) {
+      try {
+        const response = await fetch('/.netlify/functions/reserve-proxy', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            action: 'reserve',
+            giftId: giftId,
+            person: 'Anonyme'
+          })
+        });
 
-  fetch('/.netlify/functions/reserve-proxy', { method: 'POST', body: params })
-  .then(response => {
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Met à jour localement le cadeau comme réservé
+          const gift = gifts.find(g => g.id === giftId);
+          if (gift) {
+            gift.reserved = true;
+            renderGifts();
+          }
+          alert('Cadeau réservé avec succès ! 🎉');
+        } else {
+          alert('Erreur lors de la réservation : ' + (data.message || 'Erreur inconnue'));
+        }
+      } catch (error) {
+        console.error('Erreur dans fetch :', error);
+        alert('Erreur lors de la réservation. Vérifiez la console.');
+      }
     }
-    return response.json();
-  })
-  .then(data => {
-    console.log(data);
-    // suite du traitement
-  })
-  .catch(error => {
-    console.error('Erreur dans fetch :', error);
-  });
-}
-
 
     renderGifts();
   </script>
