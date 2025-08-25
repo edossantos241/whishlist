@@ -50,12 +50,8 @@
         // Cadeau réservé : bouton grisé + bouton annuler
         div.innerHTML = `
           <strong>${gift.name}</strong><br>
-          <button data-id="${gift.id}" disabled>
-            🎁 Réservé !
-          </button>
-          <button onclick="cancelReservation(${gift.id})" style="margin-left: 10px; background-color: #f44336;">
-            Annuler la réservation
-          </button>
+          <button data-id="${gift.id}" disabled>🎁 Réservé !</button>
+  <button class="cancel-button" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>
         `;
       } else {
         // Cadeau dispo : bouton réserver actif
@@ -142,7 +138,11 @@
     return;
   }
 
-  button.textContent = "Annulation...";
+  const cancelButton = document.querySelector(`button.cancel-button[data-id="${giftId}"]`);
+  if (cancelButton) {
+    cancelButton.disabled = true;
+    cancelButton.textContent = "Annulation...";
+  }
 
   fetch(sheetURL, {
     method: 'POST',
@@ -156,13 +156,21 @@
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        loadGifts(); // recharge la liste
+        loadGifts(); // Recharge la liste pour refléter le changement
       } else {
         alert("Erreur : " + (data.error || "Réponse inattendue"));
+        if (cancelButton) {
+          cancelButton.disabled = false;
+          cancelButton.textContent = "Annuler la réservation";
+        }
       }
     })
     .catch(err => {
       alert("Erreur : " + err.message);
+      if (cancelButton) {
+        cancelButton.disabled = false;
+        cancelButton.textContent = "Annuler la réservation";
+      }
     });
 }
 
