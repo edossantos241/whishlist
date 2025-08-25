@@ -2,7 +2,7 @@ const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 exports.handler = async (event) => {
-  const url = "https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec"; // <-- mets bien ton URL ici
+  const url = "https://script.google.com/macros/s/AKfycbwGm9QgyunYOC3nENNw7m-mvlZ64kj78RLaOPakfJft032VxOeEie1WFMJWD0qRhTTY6w/exec"; // <-- mets bien ton URL ici
 
   try {
     const response = await fetch(url, {
