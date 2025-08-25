@@ -50,43 +50,50 @@
         const div = document.createElement("div");
         div.className = "gift";
         div.innerHTML = `
-          <strong>${gift.name}</strong><br>
-          <button ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
-            ${gift.reserved ? "Déjà réservé" : "Je réserve"}
-          </button>
-        `;
+  <strong>${gift.name}</strong><br>
+  <button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
+    ${gift.reserved ? "Déjà réservé" : "Je réserve"}
+  </button>
+`;
+
         giftListEl.appendChild(div);
       });
     }
 
-    async function reserveGift(giftId) {
-  try {
-    const response = await fetch('/.netlify/functions/reserve-proxy', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'reserve', giftId, person: 'Anonyme' })
-    });
+    function reserveGift(giftId) {
+  const button = document.querySelector(`button[data-id="${giftId}"]`);
+  if (!button) return;
 
-    const text = await response.text(); // récupère la réponse brute
-    console.log('Réponse brute:', text);
+  // On désactive le bouton tout de suite pour éviter les doubles clics
+  button.disabled = true;
+  button.textContent = "Réservation...";
 
-    // Essaye de parser seulement si c'est du JSON (par exemple commence par '{')
-    if (text.trim().startsWith('{')) {
-      const data = JSON.parse(text);
+  fetch('/.netlify/functions/reserve-proxy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      action: 'reserve',
+      giftId: giftId,
+      person: 'Anonyme'
+    })
+  })
+    .then(response => response.json())
+    .then(data => {
       console.log("Réponse JSON :", data);
-       if (data.result === "OK") {
-    alert("🎁 Réservation réussie !");
-    // ici tu peux désactiver le bouton, etc.
-  } else {
-    alert("Erreur : " + (data.error || 'Réponse inattendue'));
-  }
-    } else {
-      throw new Error('Réponse inattendue (pas du JSON)');
-    }
-  } catch (error) {
-    console.error('Erreur dans fetch :', error);
-    alert('Erreur lors de la réservation. Vérifie la console.');
-  }
+      if (data.success || data.result === "OK") {
+        button.textContent = "🎁 Réservé";
+      } else {
+        alert("Erreur : " + (data.error || "Réponse inattendue"));
+        button.disabled = false;
+        button.textContent = "Je réserve";
+      }
+    })
+    .catch(error => {
+      console.error('Erreur dans fetch :', error);
+      alert("Erreur : " + error.message);
+      button.disabled = false;
+      button.textContent = "Je réserve";
+    });
 }
 
 
