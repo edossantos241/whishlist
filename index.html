@@ -45,40 +45,49 @@
     const giftListEl = document.getElementById("gift-list");
 
     function renderGifts(gifts) {
-    giftListEl.innerHTML = "";
+  giftListEl.innerHTML = "";
 
-    // On trie : les non réservés d'abord (reserved = false)
-gifts.sort((a, b) => {
-  return (a.reserved === b.reserved) ? 0 : a.reserved ? 1 : -1;
-});
+  // Trier : d'abord les non réservés
+  gifts.sort((a, b) => {
+    return (a.reserved === b.reserved) ? 0 : a.reserved ? 1 : -1;
+  });
 
-gifts.forEach(gift => {
-      const div = document.createElement("div");
-      div.className = "gift";
+  gifts.forEach(gift => {
+    const div = document.createElement("div");
+    div.className = "gift";
 
-      if (gift.reserved) {
-        // Cadeau réservé : bouton grisé + bouton annuler
-        div.innerHTML = `
-          <strong>${gift.name}</strong><br>
-          <button data-id="${gift.id}" ${gift.reserved ? "disabled" : ""} onclick="reserveGift(${gift.id})">
-  ${gift.reserved ? "🎁 Réservé !" : "Je réserve"}
-</button>
+    // S'il y a une URL, on crée un lien HTML
+    const linkHTML = gift.url
+      ? `<br><a href="${gift.url}" target="_blank" rel="noopener noreferrer">🔗 Voir ce cadeau</a>`
+      : "";
 
-${gift.reserved ? `<button class="cancel-btn" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">Annuler la réservation</button>` : ""}
-        `;
-      } else {
-        // Cadeau dispo : bouton réserver actif
-        div.innerHTML = `
-          <strong>${gift.name}</strong><br>
-          <button data-id="${gift.id}" onclick="reserveGift(${gift.id})">
-            Je réserve
-          </button>
-        `;
-      }
+    if (gift.reserved) {
+      // Cadeau réservé : bouton grisé + bouton annuler
+      div.innerHTML = `
+        <strong>${gift.name}</strong>
+        ${linkHTML}<br>
+        <button data-id="${gift.id}" disabled>
+          🎁 Réservé !
+        </button>
+        <button class="cancel-btn" data-id="${gift.id}" onclick="cancelReservation(${gift.id})">
+          Annuler la réservation
+        </button>
+      `;
+    } else {
+      // Cadeau dispo : bouton réserver actif
+      div.innerHTML = `
+        <strong>${gift.name}</strong>
+        ${linkHTML}<br>
+        <button data-id="${gift.id}" onclick="reserveGift(${gift.id})">
+          Je réserve
+        </button>
+      `;
+    }
 
-      giftListEl.appendChild(div);
-    });
-  }
+    giftListEl.appendChild(div);
+  });
+}
+
 
   function loadGifts() {
     fetch(sheetURL)
