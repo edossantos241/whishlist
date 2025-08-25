@@ -2,7 +2,7 @@ const fetch = (...args) =>
   import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 exports.handler = async (event) => {
-  const url = "https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec";
+  const url = "https://script.google.com/macros/s/AKfycbxTVILLMito4TMwJqrXawujwma23kJpAB0hJ9yKI5F-f7xxhJnH0-l76rj0FukWLwDqVg/exec"; // <-- mets bien ton URL ici
 
   try {
     const response = await fetch(url, {
@@ -13,7 +13,7 @@ exports.handler = async (event) => {
       ...(event.httpMethod === 'POST' ? { body: event.body } : {})
     });
 
-    const data = await response.text(); // <-- important
+    const data = await response.text(); // NE PAS faire .json() ici
 
     return {
       statusCode: 200,
@@ -21,7 +21,7 @@ exports.handler = async (event) => {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
       },
-      body: data,
+      body: data, // la réponse brute du Apps Script
     };
   } catch (error) {
     return {
