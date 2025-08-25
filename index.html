@@ -74,12 +74,12 @@
     if (text.trim().startsWith('{')) {
       const data = JSON.parse(text);
       console.log("Réponse JSON :", data);
-      if (data.success) {
-        alert('Réservation réussie !');
-        // mise à jour UI
-      } else {
-        alert('Erreur : ' + (data.message || 'Erreur inconnue'));
-      }
+       if (data.result === "OK") {
+    alert("🎁 Réservation réussie !");
+    // ici tu peux désactiver le bouton, etc.
+  } else {
+    alert("Erreur : " + (data.error || 'Réponse inattendue'));
+  }
     } else {
       throw new Error('Réponse inattendue (pas du JSON)');
     }
